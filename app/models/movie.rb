@@ -1,6 +1,6 @@
 class Movie < ActiveRecord::Base
 
   def self.ratings
-    Movie.group(:rating).map { |movie| movie.rating }
+    Movie.select(:rating).map(&:rating).uniq
   end
 end
