@@ -9,6 +9,7 @@ class MoviesController < ApplicationController
   def index
     conditions = Hash.new
     @all_ratings = Movie.ratings
+    @selected_ratings_hash = params[:ratings]
     @selected_ratings = params[:ratings].nil? ? @all_ratings : params[:ratings].keys
     unless params[:sort_column].nil?
       conditions[:order] = "#{params[:sort_column]} ASC"
