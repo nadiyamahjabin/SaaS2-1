@@ -7,12 +7,15 @@ class MoviesController < ApplicationController
   end
 
   def index
+    conditions = Hash.new
+    @all_ratings = Movie.ratings
+    @selected_ratings = params[:ratings].nil? ? @all_ratings : params[:ratings].keys
     unless params[:sort_column].nil?
-      @movies = Movie.find(:all, {:order => "#{params[:sort_column]} ASC"})
+      conditions[:order] = "#{params[:sort_column]} ASC"
       @sort_column = params[:sort_column]
-    else
-      @movies = Movie.all
     end
+    conditions[:conditions] = "rating IN (?)", @selected_ratings
+    @movies = Movie.find(:all, conditions)
   end
 
   def new
