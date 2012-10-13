@@ -9,14 +9,25 @@ class MoviesController < ApplicationController
   def index
     conditions = Hash.new
     @all_ratings = Movie.ratings
-    @selected_ratings_hash = params[:ratings]
-    @selected_ratings = params[:ratings].nil? ? @all_ratings : params[:ratings].keys
-    unless params[:sort_column].nil?
-      conditions[:order] = "#{params[:sort_column]} ASC"
-      @sort_column = params[:sort_column]
+    @selected_ratings = params[:ratings] || session[:ratings] || {}
+    @sort_column = params[:sort_column] || session[:sort_column]
+
+    if @selected_ratings == {}
+      @selected_ratings = Hash[@all_ratings.map { |rating| [rating, rating] }]
     end
-    conditions[:conditions] = "rating IN (?)", @selected_ratings
+
+    unless @sort_column.nil?
+      conditions[:order] = "#{@sort_column} ASC"
+    end
+    conditions[:conditions] = "rating IN (?)", @selected_ratings.keys
     @movies = Movie.find(:all, conditions)
+
+    if params[:sort_column] != session[:sort_column] || params[:ratings] != session[:ratings]
+      session[:sort_column] = @sort_column
+      session[:ratings] = @selected_ratings
+      flash.keep
+      redirect_to :sort_column => @sort_column, :ratings => @selected_ratings
+    end
   end
 
   def new
